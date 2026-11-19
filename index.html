@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Salimos el sábado? 💕</title>
+  <style>
+    :root {
+      --pink: #ff6fa5;
+      --pink-dark: #d94f83;
+      --cream: #fff8fb;
+      --ink: #523744;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,.9) 0 3%, transparent 4%),
+        linear-gradient(135deg, #ffe7f0 0%, #fff9f1 55%, #f8e7ff 100%);
+      display: grid;
+      place-items: center;
+      overflow-x: hidden;
+    }
+
+    .card {
+      width: min(92vw, 680px);
+      min-height: 560px;
+      margin: 24px;
+      padding: 42px;
+      border: 1px solid rgba(255,255,255,.9);
+      border-radius: 28px;
+      background: rgba(255, 255, 255, .78);
+      box-shadow: 0 20px 60px rgba(177, 91, 125, .18);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      position: relative;
+    }
+
+    h1, h2 { margin-top: 0; color: #9d3d66; }
+    h1 { font-size: clamp(30px, 7vw, 48px); }
+    h2 { font-size: clamp(24px, 5vw, 34px); }
+    p { line-height: 1.6; }
+
+    .hidden { display: none !important; }
+
+    .proposal-actions {
+      height: 180px;
+      margin-top: 30px;
+      position: relative;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 26px;
+      font: 700 17px Georgia, "Times New Roman", serif;
+      cursor: pointer;
+      transition: transform .18s, box-shadow .18s, background .18s;
+    }
+
+    button:hover { transform: translateY(-2px); }
+
+    #yesBtn {
+      min-width: 120px;
+      color: white;
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      box-shadow: 0 10px 24px rgba(217,79,131,.28);
+    }
+
+    #noBtn {
+      min-width: 120px;
+      color: #6d4a58;
+      background: #eee7ea;
+      position: fixed;
+      left: calc(50% + 75px);
+      top: 62%;
+      z-index: 20;
+    }
+
+    .progress {
+      height: 7px;
+      margin-bottom: 28px;
+      border-radius: 99px;
+      background: #f2dde6;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #ff91bd, #d94f83);
+      transition: width .35s ease;
+    }
+
+    .question-count {
+      color: #b46a86;
+      font-size: 14px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .option {
+      min-height: 82px;
+      padding: 16px;
+      border: 2px solid #efdce5;
+      border-radius: 16px;
+      background: rgba(255,255,255,.9);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.35;
+      text-align: left;
+    }
+
+    .option:hover, .option.selected {
+      border-color: var(--pink);
+      background: #fff0f6;
+      box-shadow: 0 8px 20px rgba(217,79,131,.12);
+    }
+
+    .option.selected { transform: scale(1.02); }
+
+    .navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24px;
+    }
+
+    .secondary {
+      background: #efe4e9;
+      color: #755563;
+    }
+
+    .next {
+      background: var(--pink);
+      color: white;
+      margin-left: auto;
+    }
+
+    .result-list {
+      max-height: 310px;
+      overflow-y: auto;
+      text-align: left;
+      background: #fff;
+      border-radius: 16px;
+      padding: 18px 22px;
+      margin: 20px 0;
+    }
+
+    .result-list p { margin: 8px 0; }
+
+    .save-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .save { background: #6eaa8a; color: white; }
+
+    .hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .heart {
+      position: absolute;
+      bottom: -30px;
+      color: rgba(217,79,131,.25);
+      animation: float 7s linear forwards;
+    }
+
+    @keyframes float {
+      to { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+    }
+
+    @media (max-width: 560px) {
+      .card { padding: 28px 18px; min-height: 520px; }
+      .options { grid-template-columns: 1fr; }
+      .option { min-height: 68px; }
+    }
+  </style>
+</head>
+<body>
+  <audio id="romanticMusic" loop preload="auto">
+    <source src="Keane - Somewhere Only We Know [español + lyrics].mp3" type="audio/mpeg">
+  </audio>
+  <div class="hearts" id="hearts"></div>
+
+  <main class="card">
+    <section id="proposal">
+      <div style="font-size:64px">💌</div>
+      <h1>Querida Jhasmin, ¿quieres salir conmigo el sábado?</h1>
+      <p>Tenemos una mañana especial por descubrir… ¿te animas?</p>
+      <div class="proposal-actions" id="proposalActions">
+        <button id="yesBtn">Sí, quiero 💕</button>
+        <button id="noBtn">No</button>
+      </div>
+    </section>
+
+    <section id="quiz" class="hidden">
+      <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="question-count" id="questionCount"></div>
+      <h2 id="questionText"></h2>
+      <div class="options" id="options"></div>
+      <div class="navigation">
+        <button class="secondary hidden" id="backBtn">Atrás</button>
+        <button class="next hidden" id="nextBtn">Siguiente</button>
+      </div>
+    </section>
+
+    <section id="result" class="hidden">
+      <div style="font-size:58px">💖</div>
+      <h2>¡Ya tenemos nuestro plan!</h2>
+      <p>Estas son tus respuestas:</p>
+      <div class="result-list" id="resultList"></div>
+      <div class="save-actions">
+        <button class="save" id="saveBtn">Guardar respuestas</button>
+        <button class="secondary" id="downloadBtn">Descargar respuestas</button>
+        <button class="secondary" id="restartBtn">Empezar de nuevo</button>
+      </div>
+      <p id="savedMessage"></p>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      { text: "¿Cómo te gustaría empezar nuestra salida?", options: [
+        "A) Desayunar juntos en una cafetería.", "B) Dar un paseo por la ciudad.",
+        "C) Tomarnos fotos en un lugar bonito.", "D) Ir a un lugar tranquilo para conversar."
+      ]},
+      { text: "Si tuvieras que elegir un plan para la mañana, ¿cuál sería?", options: [
+        "A) Compartir un desayuno especial.", "B) Visitar algún lugar turístico.",
+        "C) Caminar y explorar nuevos rincones.", "D) Hacer algo divertido y espontáneo."
+      ]},
+      { text: "¿Qué es lo que más te gustaría hacer conmigo?", options: [
+        "A) Hablar de nuestros sueños y metas.", "B) Reír y pasar un momento divertido.",
+        "C) Tomarnos fotos juntos.", "D) Disfrutar simplemente de nuestra compañía."
+      ]},
+      { text: "¿Cuál sería el mejor detalle para esa mañana?", options: [
+        "A) Un desayuno sorpresa.", "B) Una flor.",
+        "C) Una carta o mensaje bonito.", "D) Un abrazo largo y sincero."
+      ]},
+      { text: "¿Qué lugar prefieres para nuestra salida?", options: [
+        "A) Una cafetería acogedora.", "B) Un parque o área verde.",
+        "C) Un lugar con bonitas vistas.", "D) Cualquier lugar mientras estemos juntos."
+      ]},
+      { text: "¿Cómo imaginas una mañana perfecta conmigo?", options: [
+        "A) Desayunar y conversar.", "B) Caminar tomados de la mano.",
+        "C) Conocer algo nuevo juntos.", "D) Reír y crear recuerdos especiales."
+      ]},
+      { text: "¿Qué te gustaría que no faltara en nuestra salida?", options: [
+        "A) Buena comida.", "B) Muchas conversaciones.",
+        "C) Fotos para recordar el momento.", "D) Cariño y atención."
+      ]},
+      { text: "Al final de la salida, ¿qué te gustaría sentir?", options: [
+        "A) Felicidad.", "B) Tranquilidad.",
+        "C) Emoción por repetir la experiencia.", "D) Más enamorada/o que antes. 💕"
+      ]}
+    ];
+
+    let current = 0;
+    const answers = new Array(questions.length).fill(null);
+
+    const proposal = document.getElementById("proposal");
+    const quiz = document.getElementById("quiz");
+    const result = document.getElementById("result");
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+    const proposalActions = document.getElementById("proposalActions");
+    let noAttempts = 0;
+
+    noBtn.addEventListener("mouseover", moveNoButton);
+    noBtn.addEventListener("touchstart", (event) => {
+      event.preventEventDefault?.();
+      moveNoButton();
+    });
+
+    noBtn.addEventListener("click", moveNoButton);
+
+    function moveNoButton() {
+      noAttempts++;
+      yesBtn.style.transform = `scale(${Math.min(1.8, 1 + noAttempts * 0.09)})`;
+
+      const margin = 20;
+      const buttonWidth = noBtn.offsetWidth || 120;
+      const buttonHeight = noBtn.offsetHeight || 50;
+      const maxX = Math.max(margin, window.innerWidth - buttonWidth - margin);
+      const maxY = Math.max(margin, window.innerHeight - buttonHeight - margin);
+      const x = margin + Math.random() * (maxX - margin);
+      const y = margin + Math.random() * (maxY - margin);
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+
+      const messages = ["¿Segura, Jhasmin? 🥺", "Piensa otra vez 😳", "¡El sí está más lindo!", "No me digas eso 💔", "El botón no quiere que digas no 😜"];
+      noBtn.textContent = messages[noAttempts % messages.length];
+    }
+
+    yesBtn.addEventListener("click", () => {
+      const music = document.getElementById("romanticMusic");
+      music.volume = 0.6;
+      music.play().catch(() => {
+        console.warn("La reproducción automática fue bloqueada por el navegador.");
+      });
+
+      proposal.classList.add("hidden");
+      quiz.classList.remove("hidden");
+      renderQuestion();
+      createHearts();
+    });
+
+    function renderQuestion() {
+      const question = questions[current];
+      document.getElementById("questionCount").textContent = `Pregunta ${current + 1} de ${questions.length}`;
+      document.getElementById("questionText").textContent = question.text;
+      document.getElementById("progressBar").style.width = `${((current + 1) / questions.length) * 100}%`;
+
+      const optionsBox = document.getElementById("options");
+      optionsBox.innerHTML = "";
+      question.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.className = "option" + (answers[current] === option ? " selected" : "");
+        button.textContent = option;
+        button.addEventListener("click", () => selectOption(index));
+        optionsBox.appendChild(button);
+      });
+
+      document.getElementById("backBtn").classList.toggle("hidden", current === 0);
+      document.getElementById("nextBtn").classList.toggle("hidden", answers[current] === null);
+      document.getElementById("nextBtn").textContent = current === questions.length - 1 ? "Ver respuestas" : "Siguiente";
+    }
+
+    function selectOption(index) {
+      answers[current] = questions[current].options[index];
+      document.querySelectorAll(".option").forEach((button, i) => {
+        button.classList.toggle("selected", i === index);
+      });
+      document.getElementById("nextBtn").classList.remove("hidden");
+    }
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      if (answers[current] === null) return;
+      if (current < questions.length - 1) {
+        current++;
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    });
+
+    document.getElementById("backBtn").addEventListener("click", () => {
+      if (current > 0) {
+        current--;
+        renderQuestion();
+      }
+    });
+
+    function showResult() {
+      quiz.classList.add("hidden");
+      result.classList.remove("hidden");
+      const list = document.getElementById("resultList");
+      list.innerHTML = "";
+      questions.forEach((question, i) => {
+        const item = document.createElement("p");
+        item.innerHTML = `<strong>${i + 1}. ${question.text}</strong><br>${answers[i]}`;
+        list.appendChild(item);
+      });
+    }
+
+    function buildText() {
+      let text = "NUESTRO PLAN DEL SÁBADO 💕\n\n";
+      questions.forEach((question, i) => {
+        text += `${i + 1}. ${question.text}\n${answers[i]}\n\n`;
+      });
+      text += `Guardado el ${new Date().toLocaleString("es")}`;
+      return text;
+    }
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      const saved = { date: new Date().toISOString(), answers };
+      localStorage.setItem("nuestroPlanSabado", JSON.stringify(saved));
+      document.getElementById("savedMessage").textContent = "¡Respuestas guardadas! También puedes descargarlas. 💾";
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      const blob = new Blob([buildText()], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "nuestras-respuestas-del-sabado.txt";
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("restartBtn").addEventListener("click", () => {
+      current = 0;
+      answers.fill(null);
+      noAttempts = 0;
+      yesBtn.style.transform = "scale(1)";
+      noBtn.textContent = "No";
+      noBtn.style.left = "calc(50% + 75px)";
+      noBtn.style.top = "62%";
+      document.getElementById("savedMessage").textContent = "";
+      result.classList.add("hidden");
+      proposal.classList.remove("hidden");
+    });
+
+    function createHearts() {
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+          const heart = document.createElement("span");
+          heart.className = "heart";
+          heart.textContent = i % 2 ? "♥" : "💕";
+          heart.style.left = Math.random() * 100 + "vw";
+          heart.style.fontSize = (14 + Math.random() * 24) + "px";
+          document.getElementById("hearts").appendChild(heart);
+          setTimeout(() => heart.remove(), 7000);
+        }, i * 120);
+      }
+    }
+  </script>
+</body>
+</html>
